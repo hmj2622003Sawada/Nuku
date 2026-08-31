@@ -7,15 +7,7 @@ const int WIDTH = 444, HEIGHT = 340; // 画面サイズ
 const int FPS = 60; // フレームレート
 enum{TITLE, RULE, PLAY, RESULT};
 
-int imgPlayer[6] = {
-	LoadGraph("image/run1.png"),
-	LoadGraph("image/run2.png"),
-	LoadGraph("image/run3.png"),
-	LoadGraph("image/run4.png"),
-	LoadGraph("image/run5.png"),
-	LoadGraph("image/run6.png")
-};
-int PlayerX = 0, PlayerY = 0;
+
 
 // グローバル変数
 int distance = 0;
@@ -46,17 +38,62 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	LoadGraph("image/run5.png"),
 	LoadGraph("image/run6.png")
 	};
-	int PlayerX = 0, PlayerY = 0;
+	int PlayerX = 30, PlayerY = 75;
+
+	/*int imgEnemy1[6] = {
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png")
+	}*/
+
+	/*int imgEnemy2[6] = {
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png")
+	}*/
+
+	/*int imgEnemy3[6] = {
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png"),
+		LoadGraph("image/.png")
+	}*/
+
 
 	while (1) // メインループ
 	{
 		ClearDrawScreen(); // 画面をクリアにする
 
 		DrawGraph(0, 0, imgBG, FALSE);// 背景表示
-		PlayerX = PlayerX + 5;
+		
 		if (PlayerX > WIDTH) PlayerX = -100;
 		DrawGraph(PlayerX, PlayerY, imgPlayer[(timer/7) % 6], TRUE);
 		timer++;
+
+
+		switch (scene)
+		{
+		case TITLE:
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "Overtake Game", 0xffffff, 80);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.7, "Press SPACE to Start.", 0xffffff, 30);
+			if (CheckHitKey(KEY_INPUT_SPACE))
+			{
+				scene = RULE;
+			}
+			break;
+		case RULE:
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "スペースキーを連打すると速く走ります",0xffffff,30);
+		}
+
+
 
 		ScreenFlip();	// 裏画面の内容を表画面に反映
 		WaitTimer(1000 / FPS);	// 一定時間待機
