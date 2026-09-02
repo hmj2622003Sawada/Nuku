@@ -82,15 +82,16 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		switch (scene)
 		{
 		case TITLE:
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "Overtake Game", 0xffffff, 80);
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.7, "Press SPACE to Start.", 0xffffff, 30);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "Overtake Game", 0xffffff, 50);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.75, "Press SPACE to Start.", 0xffffff, 20);
 			if (CheckHitKey(KEY_INPUT_SPACE))
 			{
 				scene = RULE;
 			}
 			break;
 		case RULE:
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "スペースキーを連打すると速く走ります",0xffffff,30);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "スペースキーを連打すると速く走ります",0xffffff,15);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.55, "スタミナがなくなると速度が遅くなります", 0xffffff,13);
 		}
 
 
@@ -141,6 +142,15 @@ int LoadSoundMemWithCheck(const char* file)
 	}
 }
 
+void DrawTextC(int x, int y, const char* txt, int col, int siz)
+{
+	SetFontSize(siz);
+	int strWidth = GetDrawStringWidth(txt, strlen(txt));
+	x -= strWidth / 2;
+	y -= siz / 2;
+	DrawString(x + 1, y + 1, txt, 0x000000);
+	DrawString(x, y, txt, col);
+}
 
 
 
