@@ -14,7 +14,22 @@ int distance = 0;
 // int imgPlayer, imgCPU;
 int imgBG;
 int timer = 0;
+int timer1 = 2;
+int timer2 = 4;
+int timer3 = 6;
 int scene = TITLE;
+int rank = 4;
+int timers;
+int timerm;
+int timerh;
+bool firstflag = false;
+bool secondflag = false;
+bool thirdflag = false;
+bool fourthflag = true;
+
+int E1X = 300;
+int E2X = 200;
+int E3X = 120;
 
 
 
@@ -40,34 +55,34 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	LoadGraph("image/run5.png"),
 	LoadGraph("image/run6.png")
 	};
-	int PlayerX = 30, PlayerY = 75;
+	int PlayerX = 30, PlayerY = 115;
 
-	/*int imgEnemy1[6] = {
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png")
-	}*/
+	int imgEnemy1[6] = {
+		LoadGraph("image/runE11.png"),
+		LoadGraph("image/runE12.png"),
+		LoadGraph("image/runE13.png"),
+		LoadGraph("image/runE14.png"),
+		LoadGraph("image/runE15.png"),
+		LoadGraph("image/runE16.png")
+	};
 
-	/*int imgEnemy2[6] = {
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png")
-	}*/
+	int imgEnemy2[6] = {
+		LoadGraph("image/runE21.png"),
+		LoadGraph("image/runE22.png"),
+		LoadGraph("image/runE23.png"),
+		LoadGraph("image/runE24.png"),
+		LoadGraph("image/runE25.png"),
+		LoadGraph("image/runE26.png")
+	};
 
-	/*int imgEnemy3[6] = {
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png"),
-		LoadGraph("image/.png")
-	}*/
+	int imgEnemy3[6] = {
+		LoadGraph("image/runE31.png"),
+		LoadGraph("image/runE32.png"),
+		LoadGraph("image/runE33.png"),
+		LoadGraph("image/runE34.png"),
+		LoadGraph("image/runE35.png"),
+		LoadGraph("image/runE36.png")
+	};
 
 
 	while (1) // メインループ
@@ -76,8 +91,11 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 		
 		if (PlayerX > WIDTH) PlayerX = -100;
+		
 		timer++;
-
+		timer1++;
+		timer2++;
+		timer3++;
 
 		switch (scene)
 		{
@@ -100,12 +118,54 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			break;
 		case PLAY:
 			DrawGraph(0, 0, imgBG, FALSE);// 背景表示
+			DrawGraph(E1X, 15 ,imgEnemy1[(timer1 / 7) % 6],TRUE);
+			DrawGraph(E2X, 45 ,imgEnemy2[(timer2 / 7) % 6],TRUE);
+			DrawGraph(E3X, 75 ,imgEnemy3[(timer3 / 7) % 6],TRUE);
 			DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 7) % 6], TRUE);
+			if (rank == 4)
+			{
+				DrawTextC(20, 10,"4位", 0xffffff, 20);
+			}
+			if (rank == 3)
+			{
+				DrawTextC(20,10,"3位", 0xB87333, 20);
+			}
+			if (rank == 2)
+			{
+				DrawTextC(20,10,"2位", 0xc0c0c0, 20);
+			}
+			if (rank == 1)
+			{
+				DrawTextC(20,10,"1位", 0xffd700, 20);
+			}
 			DrawParameter();
 			
+			if (PlayerX <= E3X)
+			{
+				fourthflag = true;
+				rank = 4;
+			}
+			if (PlayerX >= E3X)
+			{
+				fourthflag = false;
+				thirdflag = true;
+				rank = 3;
+			}
+			if (PlayerX >= E2X)
+			{
+				thirdflag = false;
+				secondflag = true;
+				rank = 2;
+			}
+			if (PlayerX >= E1X)
+			{
+				secondflag = false;
+				firstflag = true;
+				rank = 1;
+			}
 
 
-			if (CheckHitKey(KEY_INPUT_SPACE))
+			if (CheckHitKey(KEY_INPUT_0))
 			{
 				scene = RESULT;
 			}
@@ -180,15 +240,36 @@ void DrawTextC(int x, int y, const char* txt, int col, int siz)
 void DrawParameter(void)
 {
 	int stamina = 100;
-	int x = 30, y = HEIGHT - 30; // 表示位置
-	DrawBox(x, y, 400, y + 20, 0x000000, TRUE);
+	int staminabox = 0;
+	int x = 20, y = HEIGHT - 30; // 表示位置
+	DrawBox(x, y, 421, y + 20, 0x000000, TRUE);
 	for (int i = 0; i < stamina; i++)
 	{
 		int r = 255 - i; // RGB計算
 		int g = i *2;
 		int b = 0;
-		DrawBox(x + 1 + i , y + 1, x + 270 + i , y + 19, GetColor(r, g, b), TRUE);
+		DrawBox(x +1 , y + 1,  x + 400 , y + 19, GetColor(r, g, b), TRUE);
 	}
+	if (CheckHitKey(KEY_INPUT_SPACE))
+	{
+		staminabox++;
+		DrawBox(420, y, 420 - 4 *  staminabox, y + 20, GetColor(0, 0, 0), TRUE);
+	}
+	else
+	{
+		staminabox--;
+	}
+
+	if (staminabox >= 100)
+	{
+		staminabox == 100;
+	}
+	if (0 >= staminabox)
+	{
+		staminabox == 0;
+	}
+
+
 }
 
 
@@ -199,7 +280,6 @@ void DrawParameter(void)
 やることリスト
 ・順位の変動する機構
 ・スペースキーを連打して、スタミナを消費させる(スタミナが0になると連打しても動けなくする)機構
-・敵画像の配置(3人)
 ・リザルト画面での順位とタイム発表の仕組み
 
 優先度低め
