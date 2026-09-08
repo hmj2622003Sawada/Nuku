@@ -11,26 +11,32 @@ enum{TITLE, RULE, PLAY, RESULT};
 
 // グローバル変数
 int distance = 0;
-// int imgPlayer, imgCPU;
+
 int imgBG;
 int timer = 0;
 int timer1 = 2;
 int timer2 = 4;
 int timer3 = 6;
+int stimer = 0;
+int mtimer = 0;
 int scene = TITLE;
 int rank = 4;
-int timers;
-int timerm;
-int timerh;
+int timers = 0;
+int timerm = 0;
+int second = 0;
+int minute = 0;
+int spacepush = 0;
 bool firstflag = false;
 bool secondflag = false;
 bool thirdflag = false;
 bool fourthflag = true;
+bool pushflag = false;
 
-int E1X = 300;
-int E2X = 200;
-int E3X = 120;
+int E1X = 1000;
+int E2X = 750;
+int E3X = 500;
 
+int KeyFrame[256];
 
 
 
@@ -45,8 +51,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	SetDrawScreen(DX_SCREEN_BACK);	// 描画面を裏画面に
 
 	InitGame(); // 初期化用の関数
-
-
+	
 	int imgPlayer[6] = {
 	LoadGraph("image/run1.png"),
 	LoadGraph("image/run2.png"),
@@ -96,6 +101,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		timer1++;
 		timer2++;
 		timer3++;
+		
 
 		switch (scene)
 		{
@@ -117,24 +123,30 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			}
 			break;
 		case PLAY:
+			timers = 0;
+			timers++;
+			timerm = 0;
+			
+			
+			
 			DrawGraph(0, 0, imgBG, FALSE);// 背景表示
 			DrawGraph(E1X, 15 ,imgEnemy1[(timer1 / 7) % 6],TRUE);
 			DrawGraph(E2X, 45 ,imgEnemy2[(timer2 / 7) % 6],TRUE);
 			DrawGraph(E3X, 75 ,imgEnemy3[(timer3 / 7) % 6],TRUE);
 			DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 7) % 6], TRUE);
-			if (rank == 4)
+			if (rank == 4 && fourthflag == true)
 			{
 				DrawTextC(20, 10,"4位", 0xffffff, 20);
 			}
-			if (rank == 3)
+			if (rank == 3 && thirdflag == true)
 			{
 				DrawTextC(20,10,"3位", 0xB87333, 20);
 			}
-			if (rank == 2)
+			if (rank == 2 && secondflag == true)
 			{
 				DrawTextC(20,10,"2位", 0xc0c0c0, 20);
 			}
-			if (rank == 1)
+			if (rank == 1 && firstflag == true)
 			{
 				DrawTextC(20,10,"1位", 0xffd700, 20);
 			}
@@ -143,18 +155,21 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			if (PlayerX <= E3X)
 			{
 				fourthflag = true;
+				thirdflag = false;
 				rank = 4;
 			}
 			if (PlayerX >= E3X)
 			{
 				fourthflag = false;
 				thirdflag = true;
+				secondflag = false;
 				rank = 3;
 			}
 			if (PlayerX >= E2X)
 			{
 				thirdflag = false;
 				secondflag = true;
+				firstflag = false;
 				rank = 2;
 			}
 			if (PlayerX >= E1X)
@@ -164,6 +179,33 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				rank = 1;
 			}
 
+			if (timers / 60 == 1)
+			{
+				second = second + 1;
+				if (second == 60)
+				{
+					second = 0;
+					minute = minute + 1;
+				}
+			}
+
+			if (CheckHitKey(KEY_INPUT_SPACE))
+			{
+				E1X -= 1;
+				E2X -= 1;
+				E3X -= 1;
+			}
+			
+			if (CheckHitKey(KEY_INPUT_SPACE) == 0)
+			{
+				spacepush++;
+			}
+			if (spacepush / 3 == 0)
+			{
+				E1X += 1;
+				E2X += 1;
+				E3X += 1;
+			}
 
 			if (CheckHitKey(KEY_INPUT_0))
 			{
@@ -171,13 +213,18 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			}
 			break;
 		case RESULT:
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.5, "１位", 0xffffff, 15);
+			int x = 222;
+			int y = 200;
+			DrawText_C(WIDTH * 0.5, HEIGHT * 0.5, "%1d位",rank, 0xffffff, 15);
+			DrawTimer();
 			if (CheckHitKey(KEY_INPUT_5))
 			{
 				scene = TITLE;
 			}
 		}
 
+
+	
 
 
 		ScreenFlip();	// 裏画面の内容を表画面に反映
@@ -248,7 +295,7 @@ void DrawParameter(void)
 		int r = 255 - i; // RGB計算
 		int g = i *2;
 		int b = 0;
-		DrawBox(x +1 , y + 1,  x + 400 , y + 19, GetColor(r, g, b), TRUE);
+		DrawBox(x + 1, y + 1, x + 300 + i, y + 19, GetColor(r, g, b), TRUE);
 	}
 	if (CheckHitKey(KEY_INPUT_SPACE))
 	{
@@ -272,13 +319,30 @@ void DrawParameter(void)
 
 }
 
+void DrawTimer(void)
+{
+	int x = 150;
+	int y = HEIGHT - 140;
+	DrawText_C(x,y,"TIME: %02d", minute, 0xffffff, 20);
+	DrawText_C(x + 90, y, ":%02d", second, 0xffffff, 20);
+}
+
+void DrawText_C(int x, int y, const char* txt, int val, int col, int siz)
+{
+	SetFontSize(siz);
+	DrawFormatString(x + 1, y + 1, 0xffffff, txt, val);
+	DrawFormatString(x, y, col, txt, val);
+}
+
+
+
+
 
 
 // 背景のサイズH444×W340
 
 /*
 やることリスト
-・順位の変動する機構
 ・スペースキーを連打して、スタミナを消費させる(スタミナが0になると連打しても動けなくする)機構
 ・リザルト画面での順位とタイム発表の仕組み
 
