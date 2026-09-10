@@ -26,11 +26,14 @@ int timerm = 0;
 int second = 0;
 int minute = 0;
 int spacepush = 0;
+int staminabox = 100;
 bool firstflag = false;
 bool secondflag = false;
 bool thirdflag = false;
 bool fourthflag = true;
 bool pushflag = false;
+bool spaceflag = false;
+bool staminaflag = false;
 
 int E1X = 1000;
 int E2X = 750;
@@ -52,6 +55,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	InitGame(); // 初期化用の関数
 	
+
+	// 画像の読み込み
 	int imgPlayer[6] = {
 	LoadGraph("image/run1.png"),
 	LoadGraph("image/run2.png"),
@@ -97,7 +102,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		
 		if (PlayerX > WIDTH) PlayerX = -100;
 		
+		// 画像を動かす用のタイマー(動くタイミングをずらすために複数使用)
+		// プレイヤー用
 		timer++;
+		// CPU用
 		timer1++;
 		timer2++;
 		timer3++;
@@ -115,25 +123,25 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			break;
 		case RULE:
 			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "スペースキーを連打すると速く走ります",0xffffff,15);
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.55, "スタミナがなくなると速度が遅くなります", 0xffffff,13);
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.7, "Press Enter to Start", 0xffffff,20);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.4, "スタミナがなくなると速度が遅くなります", 0xffffff,15);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.5, "1位を抜かすまでのRTAです", 0xffffff, 15);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.6, "1位を抜かすとリザルト画面にい移行します", 0xffffff, 15);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.9, "Press Enter to Start", 0xffffff,20);
 			if (CheckHitKey(KEY_INPUT_RETURN))
 			{
 				scene = PLAY;
 			}
 			break;
 		case PLAY:
-			timers = 0;
 			timers++;
-			timerm = 0;
-			
-			
-			
+		
 			DrawGraph(0, 0, imgBG, FALSE);// 背景表示
-			DrawGraph(E1X, 15 ,imgEnemy1[(timer1 / 7) % 6],TRUE);
-			DrawGraph(E2X, 45 ,imgEnemy2[(timer2 / 7) % 6],TRUE);
-			DrawGraph(E3X, 75 ,imgEnemy3[(timer3 / 7) % 6],TRUE);
-			DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 7) % 6], TRUE);
+			DrawGraph(E1X, 15 ,imgEnemy1[(timer1 / 7) % 6],TRUE);	// CPU画像の表示とアニメーション
+			DrawGraph(E2X, 45 ,imgEnemy2[(timer2 / 7) % 6],TRUE);	// 上記と同様
+			DrawGraph(E3X, 75 ,imgEnemy3[(timer3 / 7) % 6],TRUE);	// 上記と同様
+			DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 7) % 6], TRUE); // プレイヤー画像の表示とアニメーション
+
+			// 順位変動
 			if (rank == 4 && fourthflag == true)
 			{
 				DrawTextC(20, 10,"4位", 0xffffff, 20);
@@ -150,8 +158,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			{
 				DrawTextC(20,10,"1位", 0xffd700, 20);
 			}
-			DrawParameter();
-			
 			if (PlayerX <= E3X)
 			{
 				fourthflag = true;
@@ -179,53 +185,56 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				rank = 1;
 			}
 
-			if (timers / 60 == 1)
+			// スタミナバーの表示、スタミナの増減
+			DrawParameter();
+			
+			// タイマー
+			if (timers % 60 == 0)
 			{
 				second = second + 1;
-				if (second == 60)
-				{
-					second = 0;
-					minute = minute + 1;
-				}
 			}
-
-			if (CheckHitKey(KEY_INPUT_SPACE))
+			if (second == 60)
 			{
-				E1X -= 1;
-				E2X -= 1;
-				E3X -= 1;
+				second = 0;
+				minute = minute + 1;
 			}
 			
+			// プレイヤーの移動(CPUを後退)
+			if (CheckHitKey(KEY_INPUT_SPACE))
+			{
+				E1X -= 1.1;
+				E2X -= 1.1;
+				E3X -= 1.1;
+			}
+			
+			// CPUの移動
 			if (CheckHitKey(KEY_INPUT_SPACE) == 0)
 			{
 				spacepush++;
 			}
-			if (spacepush / 3 == 0)
+			if (spacepush % 3 == 0)
 			{
-				E1X += 1;
-				E2X += 1;
-				E3X += 1;
+				E1X += 1.2;
+				E2X += 1.1;
+				E3X += 1.0;
 			}
 
-			if (CheckHitKey(KEY_INPUT_0))
+			if (rank == 1)
 			{
 				scene = RESULT;
 			}
 			break;
 		case RESULT:
-			int x = 222;
-			int y = 200;
-			DrawText_C(WIDTH * 0.5, HEIGHT * 0.5, "%1d位",rank, 0xffffff, 15);
+			// 順位とタイム
+			DrawText_C(WIDTH - 250, HEIGHT - 200, "%01d 位",rank, 0xffffff, 30);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.7, "Press Enter to Start", 0xffffff,15);
 			DrawTimer();
-			if (CheckHitKey(KEY_INPUT_5))
+
+			if (CheckHitKey(KEY_INPUT_R))
 			{
 				scene = TITLE;
 			}
 		}
-
-
-	
-
 
 		ScreenFlip();	// 裏画面の内容を表画面に反映
 		WaitTimer(1000 / FPS);	// 一定時間待機
@@ -286,43 +295,64 @@ void DrawTextC(int x, int y, const char* txt, int col, int siz)
 // スタミナ用のパラメーター
 void DrawParameter(void)
 {
-	int stamina = 100;
-	int staminabox = 0;
+	
 	int x = 20, y = HEIGHT - 30; // 表示位置
 	DrawBox(x, y, 421, y + 20, 0x000000, TRUE);
-	for (int i = 0; i < stamina; i++)
+	for (int i = 0; i < staminabox; i++)
 	{
-		int r = 255 - i; // RGB計算
-		int g = i *2;
+		int r = 255 - staminabox * 2.55; // RGB計算
+		int g = staminabox *2.55;
 		int b = 0;
-		DrawBox(x + 1, y + 1, x + 300 + i, y + 19, GetColor(r, g, b), TRUE);
+		DrawBox(x +1, y + 1, x + staminabox * 4, y + 19, GetColor(r, g, b), TRUE);
 	}
-	if (CheckHitKey(KEY_INPUT_SPACE))
+
+	if (CheckHitKey(KEY_INPUT_SPACE) == 1)
 	{
-		staminabox++;
-		DrawBox(420, y, 420 - 4 *  staminabox, y + 20, GetColor(0, 0, 0), TRUE);
+		spaceflag = true;
+		
 	}
 	else
 	{
+		spaceflag = false;
+	}
+
+	if (spaceflag == true && staminaflag != true)
+	{
 		staminabox--;
+	}
+	
+	if (spaceflag == false )
+	{
+		if (timers % 2)
+		{
+			staminabox++;
+		}
+	}
+	
+	if (staminabox == 0)
+	{
+		staminaflag = true;
+	}
+	if (staminabox == 100)
+	{
+		staminaflag = false;
 	}
 
 	if (staminabox >= 100)
 	{
-		staminabox == 100;
+		staminabox = 100;
 	}
+
 	if (0 >= staminabox)
 	{
-		staminabox == 0;
+		staminabox = 0;
 	}
-
-
 }
 
 void DrawTimer(void)
 {
-	int x = 150;
-	int y = HEIGHT - 140;
+	int x = 160;
+	int y = HEIGHT - 160;
 	DrawText_C(x,y,"TIME: %02d", minute, 0xffffff, 20);
 	DrawText_C(x + 90, y, ":%02d", second, 0xffffff, 20);
 }
@@ -343,8 +373,8 @@ void DrawText_C(int x, int y, const char* txt, int val, int col, int siz)
 
 /*
 やることリスト
-・スペースキーを連打して、スタミナを消費させる(スタミナが0になると連打しても動けなくする)機構
-・リザルト画面での順位とタイム発表の仕組み
+・スペースキーを連打する機構
+
 
 優先度低め
 ・ゴール時、走っている最中、タイトル画面等で流すBGMを探す、流す
