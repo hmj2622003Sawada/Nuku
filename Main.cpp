@@ -46,7 +46,7 @@ int KeyFrame[256];
 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
-	SetWindowText("Nuku Game");	// ウィンドウのタイトル
+	SetWindowText("Overtake Game");	// ウィンドウのタイトル
 	SetGraphMode(WIDTH, HEIGHT, 32);	// ウィンドウの大きさとカラー指定
 	ChangeWindowMode(TRUE);	// ウィンドウモードで起動
 	if (DxLib_Init() == -1) return -1;	// ライブラリの初期化、エラーが起きたら終了
@@ -58,40 +58,40 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	// 画像の読み込み
 	int imgPlayer[6] = {
-	LoadGraph("image/run1.png"),
-	LoadGraph("image/run2.png"),
-	LoadGraph("image/run3.png"),
-	LoadGraph("image/run4.png"),
-	LoadGraph("image/run5.png"),
-	LoadGraph("image/run6.png")
+	LoadGraphWithCheck("image/run1.png"),
+	LoadGraphWithCheck("image/run2.png"),
+	LoadGraphWithCheck("image/run3.png"),
+	LoadGraphWithCheck("image/run4.png"),
+	LoadGraphWithCheck("image/run5.png"),
+	LoadGraphWithCheck("image/run6.png")
 	};
 	int PlayerX = 30, PlayerY = 115;
 
 	int imgEnemy1[6] = {
-		LoadGraph("image/runE11.png"),
-		LoadGraph("image/runE12.png"),
-		LoadGraph("image/runE13.png"),
-		LoadGraph("image/runE14.png"),
-		LoadGraph("image/runE15.png"),
-		LoadGraph("image/runE16.png")
+		LoadGraphWithCheck("image/runE11.png"),
+		LoadGraphWithCheck("image/runE12.png"),
+		LoadGraphWithCheck("image/runE13.png"),
+		LoadGraphWithCheck("image/runE14.png"),
+		LoadGraphWithCheck("image/runE15.png"),
+		LoadGraphWithCheck("image/runE16.png")
 	};
 
 	int imgEnemy2[6] = {
-		LoadGraph("image/runE21.png"),
-		LoadGraph("image/runE22.png"),
-		LoadGraph("image/runE23.png"),
-		LoadGraph("image/runE24.png"),
-		LoadGraph("image/runE25.png"),
-		LoadGraph("image/runE26.png")
+		LoadGraphWithCheck("image/runE21.png"),
+		LoadGraphWithCheck("image/runE22.png"),
+		LoadGraphWithCheck("image/runE23.png"),
+		LoadGraphWithCheck("image/runE24.png"),
+		LoadGraphWithCheck("image/runE25.png"),
+		LoadGraphWithCheck("image/runE26.png")
 	};
 
 	int imgEnemy3[6] = {
-		LoadGraph("image/runE31.png"),
-		LoadGraph("image/runE32.png"),
-		LoadGraph("image/runE33.png"),
-		LoadGraph("image/runE34.png"),
-		LoadGraph("image/runE35.png"),
-		LoadGraph("image/runE36.png")
+		LoadGraphWithCheck("image/runE31.png"),
+		LoadGraphWithCheck("image/runE32.png"),
+		LoadGraphWithCheck("image/runE33.png"),
+		LoadGraphWithCheck("image/runE34.png"),
+		LoadGraphWithCheck("image/runE35.png"),
+		LoadGraphWithCheck("image/runE36.png")
 	};
 
 
@@ -122,10 +122,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			}
 			break;
 		case RULE:
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "スペースキーを連打すると速く走ります",0xffffff,15);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.3, "スペースキーを長押しすると速く走ります",0xffffff,15);
 			DrawTextC(WIDTH * 0.5, HEIGHT * 0.4, "スタミナがなくなると速度が遅くなります", 0xffffff,15);
 			DrawTextC(WIDTH * 0.5, HEIGHT * 0.5, "1位を抜かすまでのRTAです", 0xffffff, 15);
-			DrawTextC(WIDTH * 0.5, HEIGHT * 0.6, "1位を抜かすとリザルト画面にい移行します", 0xffffff, 15);
+			DrawTextC(WIDTH * 0.5, HEIGHT * 0.6, "1位を抜かすとリザルト画面に移行します", 0xffffff, 15);
 			DrawTextC(WIDTH * 0.5, HEIGHT * 0.9, "Press Enter to Start", 0xffffff,20);
 			if (CheckHitKey(KEY_INPUT_RETURN))
 			{
@@ -139,7 +139,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawGraph(E1X, 15 ,imgEnemy1[(timer1 / 7) % 6],TRUE);	// CPU画像の表示とアニメーション
 			DrawGraph(E2X, 45 ,imgEnemy2[(timer2 / 7) % 6],TRUE);	// 上記と同様
 			DrawGraph(E3X, 75 ,imgEnemy3[(timer3 / 7) % 6],TRUE);	// 上記と同様
-			DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 7) % 6], TRUE); // プレイヤー画像の表示とアニメーション
+
+			if (spaceflag == true)
+			{
+				DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 5) % 6], TRUE); // プレイヤー画像の表示とアニメーション
+			}
+			if (spaceflag == false)
+			{
+				DrawGraph(PlayerX, PlayerY, imgPlayer[(timer / 7) % 6], TRUE); // プレイヤー画像の表示とアニメーション
+			}
 
 			// 順位変動
 			if (rank == 4 && fourthflag == true)
@@ -200,7 +208,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			}
 			
 			// プレイヤーの移動(CPUを後退)
-			if (CheckHitKey(KEY_INPUT_SPACE))
+			if (CheckHitKey(KEY_INPUT_SPACE) && staminaflag == false)
 			{
 				E1X -= 1.1;
 				E2X -= 1.1;
@@ -230,8 +238,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawTextC(WIDTH * 0.5, HEIGHT * 0.7, "Press Enter to Start", 0xffffff,15);
 			DrawTimer();
 
-			if (CheckHitKey(KEY_INPUT_R))
+			if (CheckHitKey(KEY_INPUT_RETURN))
 			{
+				Reset();
 				scene = TITLE;
 			}
 		}
@@ -309,7 +318,6 @@ void DrawParameter(void)
 	if (CheckHitKey(KEY_INPUT_SPACE) == 1)
 	{
 		spaceflag = true;
-		
 	}
 	else
 	{
@@ -320,7 +328,6 @@ void DrawParameter(void)
 	{
 		staminabox--;
 	}
-	
 	if (spaceflag == false )
 	{
 		if (timers % 2)
@@ -342,7 +349,6 @@ void DrawParameter(void)
 	{
 		staminabox = 100;
 	}
-
 	if (0 >= staminabox)
 	{
 		staminabox = 0;
@@ -364,7 +370,16 @@ void DrawText_C(int x, int y, const char* txt, int val, int col, int siz)
 	DrawFormatString(x, y, col, txt, val);
 }
 
-
+void Reset()
+{
+	minute = 0;
+	second = 0;
+	timers = 0;
+	E1X = 1000;
+	E2X = 750;
+	E3X = 500;
+	staminabox = 100;
+}
 
 
 
