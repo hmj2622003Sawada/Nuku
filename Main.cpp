@@ -10,39 +10,37 @@ enum{TITLE, RULE, PLAY, RESULT};
 
 
 // グローバル変数
-int distance = 0;
-
 int imgBG;
+// 時間把握用
 int timer = 0;
 int timer1 = 2;
 int timer2 = 4;
 int timer3 = 6;
 int stimer = 0;
 int mtimer = 0;
-int scene = TITLE;
-int rank = 4;
 int timers = 0;
 int timerm = 0;
 int second = 0;
 int minute = 0;
-int spacepush = 0;
-int staminabox = 100;
+// シーン分岐
+int scene = TITLE;
+// 順位
+int rank = 4;
 bool firstflag = false;
 bool secondflag = false;
 bool thirdflag = false;
 bool fourthflag = true;
+// スタミナ消費系
+int spacepush = 0;
+int staminabox = 100;
 bool pushflag = false;
 bool spaceflag = false;
 bool staminaflag = false;
 
+// CPUの位置情報
 int E1X = 1000;
 int E2X = 750;
 int E3X = 500;
-
-int KeyFrame[256];
-
-
-
 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -55,7 +53,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	InitGame(); // 初期化用の関数
 	
-
 	// 画像の読み込み
 	int imgPlayer[6] = {
 	LoadGraphWithCheck("image/run1.png"),
@@ -98,7 +95,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	while (1) // メインループ
 	{
 		ClearDrawScreen(); // 画面をクリアにする
-
 		
 		if (PlayerX > WIDTH) PlayerX = -100;
 		
@@ -110,7 +106,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		timer2++;
 		timer3++;
 		
-
 		switch (scene)
 		{
 		case TITLE:
@@ -380,18 +375,3 @@ void Reset()
 	E3X = 500;
 	staminabox = 100;
 }
-
-
-
-
-// 背景のサイズH444×W340
-
-/*
-やることリスト
-・スペースキーを連打する機構
-
-
-優先度低め
-・ゴール時、走っている最中、タイトル画面等で流すBGMを探す、流す
-
-*/
